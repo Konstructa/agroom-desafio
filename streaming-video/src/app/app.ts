@@ -22,6 +22,7 @@ class App {
     this.settings();
     this.middlewares();
     this.routes();
+    this.handleSocketConnection();
   }
 
   settings() {
@@ -33,70 +34,34 @@ class App {
     this.app.use(cors());
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
-    this.app.use((req, res, next): void => {
-      res.header('Access-Control-Allow-Origin', 'http://localhost:5173/');
-      res.header('Access-Control-Allow-Headers', '*');
-      res.header('Access-Control-Allow-Methods', '*');
-      next();
-    });
+    this.handleSocketConnection();
   }
 
   private handleSocketConnection() {
     this.io.on('connection', socket => {
-      const checkExistingSocket = this.activeSockets.find(
-        existingSocket => existingSocket === socket.id,
-      );
+      console.log('a user connected');
 
-      if (!checkExistingSocket) {
-        this.activeSockets.push(socket.id);
+      socket.emit('Helllo', 'World');
 
-        socket.emit('update-user-list', {
-          users: this.activeSockets.filter(
-            existingSocket => existingSocket !== socket.id,
-          ),
-        });
-
-        socket.broadcast.emit('update-user-list', {
-          users: [socket.id],
-        });
-      }
-
-      socket.on('call-user', (data: any) => {
-        socket.to(data.to).emit('call-made', {
-          offer: data.offer,
-          socket: socket.id,
-        });
-      });
-
-      socket.on('make-answer', data => {
-        socket.to(data.to).emit('answer-made', {
-          socket: socket.id,
-          answer: data.answer,
-        });
-      });
-
-      socket.on('reject-call', data => {
-        socket.to(data.from).emit('call-rejected', {
-          socket: socket.id,
-        });
-      });
-
-      socket.on('disconnect', () => {
-        this.activeSockets = this.activeSockets.filter(
-          existingSocket => existingSocket !== socket.id,
-        );
-        socket.broadcast.emit('remove-user', {
-          socketId: socket.id,
-        });
-      });
+      /* socket.on('user-entry', data => {
+        const { roomId, userId, userName, host, presenter } = data;
+      }); */
     });
   }
 
   routes() {
     this.app.use(express.static(`${__dirname}/../../public/home`));
+
+    this.app.use(express.static(`${__dirname}/../../public/room`));
+
     this.app.get('/', (req, res) => {
       res.sendFile(`${__dirname}/../../public/home/index.html`);
     });
+
+    this.app.get('/room', (req, res) => {
+      res.sendFile(`${__dirname}/../../public/room/room.html`);
+    });
+    console.log(__dirname);
   }
 
   async listen() {
