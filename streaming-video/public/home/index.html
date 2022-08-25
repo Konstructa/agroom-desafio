@@ -9,17 +9,47 @@
    <title>E-room</title>
 </head>
 <body>
+
    <header>
       <h1>E-room</h1>
    </header>
-   <div id="card-entry">
 
+   <main>
+      <div id="card-entry">
 
-      <div id = "button-div">
-         <button class="button-form">Crie uma sala</button>
-         <button class="button-form">Junte-se a uma sala</button>
+         <input type="text" id="name" name = "name" placeholder="Seu nome" required minlength="3"/>
+         <input type="text" id="nameRoom" name = "nameRoom" placeholder="Nome da Sala" required minlength="3"/>
+         <div id = "button-div">
+            <button class="button-form" id="'button-create">Crie uma sala</button>
+         </div>
+   
       </div>
 
-   </div>
+      <h2>OU</h2>
+   
+      <div id="card-entry">
+   
+         <input type="text" id="name" name = "name" placeholder="Seu nome" required minlength="3"/>
+         <input type="number" id="numberRoom" name = "numberRoom" placeholder="Número/ID da sala"/>
+         <div id = "button-div">
+            
+            <button class="button-form" id="'button-join">Junte-se a uma sala</button>
+         </div>
+   
+      </div>
+
+   </main>
+
+   <script src="js/script.js" ></script>
+   <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    socket.on('message', function(msg){
+      console.log(msg);
+      document.getElementById("name").innerHTML = msg;
+    });
+  </script>
+
 </body>
 </html>
