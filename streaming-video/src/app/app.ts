@@ -4,7 +4,6 @@ import morgan from 'morgan';
 import cors from 'cors';
 import { Server as SocketIOServer } from 'socket.io';
 import { createServer, Server as HTTPServer } from 'http';
-import path from 'path';
 
 class App {
   private httpServer: HTTPServer;
@@ -31,7 +30,7 @@ class App {
 
   middlewares() {
     this.app.use(morgan('dev'));
-    this.app.use(cors());
+    // this.app.use(cors());
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: false }));
     this.handleSocketConnection();
@@ -39,13 +38,11 @@ class App {
 
   private handleSocketConnection() {
     this.io.on('connection', socket => {
-      console.log('a user connected');
+      console.log('a user connected', socket.id);
 
-      socket.emit('Helllo', 'World');
-
-      /* socket.on('user-entry', data => {
+      /*  socket.on('user-entry', data => {
         const { roomId, userId, userName, host, presenter } = data;
-      }); */
+      });  */
     });
   }
 
@@ -65,7 +62,7 @@ class App {
   }
 
   async listen() {
-    this.app.listen(this.app.get('port'));
+    this.httpServer.listen(this.app.get('port'));
     console.log('Server on port', this.app.get('port'));
   }
 }
